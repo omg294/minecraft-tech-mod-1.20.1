@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рулетка • Приз или ничего</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #1a1e2b 0%, #2a2f3f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .roulette-container {
+            background: rgba(22, 26, 35, 0.85);
+            backdrop-filter: blur(4px);
+            border-radius: 48px;
+            padding: 32px 28px 40px;
+            box-shadow: 0 25px 40px rgba(0, 0, 0, 0.7), inset 0 1px 3px rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #f5e7c8;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 1.4rem;
+            margin-top: 0;
+            margin-bottom: 24px;
+            text-shadow: 0 2px 10px rgba(255, 200, 50, 0.5);
+        }
+
+        .wheel-wrapper {
+            position: relative;
+            width: 380px;
+            height: 380px;
+            margin: 0 auto 16px;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 0 0 8px #0f111a, 0 0 0 12px #2e3547, 0 15px 30px black;
+        }
+
+        .arrow-pointer {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 28px solid transparent;
+            border-right: 28px solid transparent;
+            border-top: 48px solid #f3c623;
+            filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.8));
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .arrow-pointer::after {
+            content: '';
+            position: absolute;
+            top: -56px;
+            left: -10px;
+            width: 20px;
+            height: 20px;
+            background: #f3c623;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffd966;
+        }
+
+        .chance-under {
+            text-align: center;
+            color: #d4c09e;
+            font-size: 0.95rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            background: rgba(12, 14, 20, 0.6);
+            border-radius: 30px;
+            padding: 10px 18px;
+            display: inline-block;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .chance-under .chance-number {
+            color: #ffd966;
+            font-weight: 900;
+            font-size: 1.4rem;
+            margin-left: 6px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .chance-under-wrapper {
+            text-align: center;
+        }
+
+        .spin-btn {
+            display: block;
+            width: 200px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            background: radial-gradient(circle at 30% 10%, #ffd966, #b8860b);
+            border: none;
+            border-radius: 40px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #19170e;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 12px 0 #6b4c0a, 0 10px 25px black;
+            transition: all 0.08s ease;
+            border: 1px solid #ffe28c;
+        }
+
+        .spin-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 6px 0 #6b4c0a, 0 8px 20px black;
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.6;
+            transform: translateY(6px);
+            box-shadow: 0 6px 0 #6b4c0a, 0 8px 20px black;
+            cursor: not-allowed;
+        }
+
+        .result-card {
+            margin-top: 28px;
+            background: rgba(12, 14, 20, 0.8);
+            border-radius: 32px;
+            padding: 16px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7);
+            text-align: center;
+        }
+
+        .result-title {
+            color: #d4c09e;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .result-image-wrapper {
+            background: #0a0c10;
+            border-radius: 24px;
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            border: 2px dashed #3e4357;
+        }
+
+        .result-image-wrapper img {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 18px;
+            display: block;
+            box-shadow: 0 6px 14px black;
+        }
+
+        .placeholder-text {
+            color: #6b7280;
+            font-size: 1rem;
+            font-style: italic;
+        }
+
+        .nothing-text {
+            color: #8b8fa3;
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .prize-selector {
+            margin-top: 24px;
+            padding: 16px;
+            background: rgba(12, 14, 20, 0.6);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+        }
+
+        .prize-selector-title {
+            color: #d4c09e;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .prize-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .prize-item {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.15s ease;
+            background: #0a0c10;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+        }
+
+        .prize-item:hover {
+            transform: translateY(-3px);
+            border-color: #ffd966;
+        }
+
+        .prize-item.selected {
+            border-color: #2a9d8f;
+            box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.4), 0 0 20px #2a9d8f;
+        }
+
+        .prize-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .prize-item .label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            font-size: 0.65rem;
+            text-align: center;
+            padding: 3px 2px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .note-links {
+            margin-top: 12px;
+            font-size: 0.75rem;
+            color: #7d859e;
+            text-align: center;
+            background: #1b1f2b;
+            padding: 8px;
+            border-radius: 40px;
+        }
+    </style>
+</head>
+<body>
+<div class="roulette-container">
+    <h1>🎰 Приз или ничего 🎰</h1>
+
+    <div class="wheel-wrapper">
+        <canvas id="wheelCanvas" width="700" height="700"></canvas>
+        <div class="arrow-pointer"></div>
+    </div>
+
+    <div class="chance-under-wrapper">
+        <div class="chance-under">
+            Шанс: <span class="chance-number" id="chanceDisplay">25%</span>
+        </div>
+    </div>
+
+    <button class="spin-btn" id="spinButton">КРУТИТЬ</button>
+
+    <div class="result-card">
+        <div class="result-title">РЕЗУЛЬТАТ</div>
+        <div class="result-image-wrapper" id="imageContainer">
+            <span class="placeholder-text">Нажмите «Крутить»</span>
+        </div>
+    </div>
+
+    <div class="prize-selector">
+        <div class="prize-selector-title">Выберите приз</div>
+        <div class="prize-list" id="prizeList"></div>
+    </div>
+
+    <div class="note-links">
+        ✏️ Ссылки на картинки призов — в массиве <strong>prizePool</strong> (в скрипте)
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ========== НАСТРОЙКИ ==========
+        // 🔻🔻🔻 ЗДЕСЬ ВСТАВЬТЕ СВОИ ССЫЛКИ НА КАРТИНКИ ПРИЗОВ 🔻🔻🔻
+        const prizePool = [
+            {
+                name: 'Приз 1',
+                image: 'https://wimg.rule34.xxx//samples/1249/sample_48c892157160c58b99434eaa72430555.jpg?18617477'  // <-- ваша blob-ссылка
+            },
+            {
+                name: 'Приз 2',
+                image: 'https://placehold.co/300x300/e76f51/ffffff?text=ПРИЗ+2'
+            },
+            {
+                name: 'Приз 3',
+                image: 'https://placehold.co/300x300/9c89b8/ffffff?text=ПРИЗ+3'
+            },
+            {
+                name: 'Приз 4',
+                image: 'https://placehold.co/300x300/457b9d/ffffff?text=ПРИЗ+4'
+            }
+        ];
+        // 🔺🔺🔺 КОНЕЦ НАСТРОЕК 🔺🔺🔺
+
+        const chances = [25, 25, 25, 25];
+        const sectorTypes = ['prize', 'empty', 'empty', 'empty'];
+
+        const colorPrize = '#2a9d8f';
+        const colorEmpty = '#3a4055';
+        const colorEmptyDark = '#2e3547';
+
+        let selectedPrizeIndex = 0;
+        let currentRotation = 0;
+        let spinning = false;
+
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spinButton');
+        const imageContainer = document.getElementById('imageContainer');
+        const chanceDisplay = document.getElementById('chanceDisplay');
+        const prizeList = document.getElementById('prizeList');
+
+        const numSectors = 4;
+        const anglePerSector = (Math.PI * 2) / numSectors;
+
+        function renderPrizeSelector() {
+            prizeList.innerHTML = '';
+            prizePool.forEach((prize, idx) => {
+                const item = document.createElement('div');
+                item.className = 'prize-item' + (idx === selectedPrizeIndex ? ' selected' : '');
+                item.innerHTML = `
+                    <img src="${prize.image}" alt="${prize.name}"
+                         onerror="this.onerror=null; this.src='https://placehold.co/300x300/1a1e2b/ffd966?text=НЕТ+ФОТО';">
+                    <div class="label">${prize.name}</div>
+                `;
+                item.addEventListener('click', () => {
+                    if (spinning) return;
+                    selectedPrizeIndex = idx;
+                    renderPrizeSelector();
+                    updateWheel();
+                });
+                prizeList.appendChild(item);
+            });
+        }
+
+        function getSectorUnderArrow(rotation) {
+            const delta = (-rotation + anglePerSector / 2);
+            const normalized = ((delta % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            return Math.floor(normalized / anglePerSector) % numSectors;
+        }
+
+        function updateChanceDisplay() {
+            const idx = getSectorUnderArrow(currentRotation);
+            chanceDisplay.textContent = chances[idx] + '%';
+        }
+
+        function drawWheel() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 2 - 20;
+
+            ctx.clearRect(0, 0, width, height);
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fillStyle = colorEmpty;
+            ctx.fill();
+
+            for (let i = 0; i < numSectors; i++) {
+                const startAngle = i * anglePerSector - Math.PI / 2 - anglePerSector / 2 + currentRotation;
+                const endAngle = startAngle + anglePerSector;
+
+                const type = sectorTypes[i];
+
+                if (type === 'prize') {
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                    ctx.closePath();
+                    ctx.fillStyle = colorPrize;
+                    ctx.fill();
+                } else {
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                    ctx.closePath();
+                    ctx.fillStyle = (i % 2 === 0) ? colorEmpty : colorEmptyDark;
+                    ctx.fill();
+                }
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(
+                    centerX + Math.cos(startAngle) * radius,
+                    centerY + Math.sin(startAngle) * radius
+                );
+                ctx.strokeStyle = 'rgba(15, 17, 26, 0.6)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            for (let i = 0; i < numSectors; i++) {
+                if (sectorTypes[i] !== 'prize') continue;
+                const startAngle = i * anglePerSector - Math.PI / 2 - anglePerSector / 2 + currentRotation;
+                const endAngle = startAngle + anglePerSector;
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.strokeStyle = '#ffd966';
+                ctx.lineWidth = 8;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#ffd966';
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = '#0f111a';
+            ctx.lineWidth = 8;
+            ctx.stroke();
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            for (let i = 0; i < 36; i++) {
+                const angle = (i / 36) * Math.PI * 2;
+                const x = Math.cos(angle) * (radius - 6);
+                const y = Math.sin(angle) * (radius - 6);
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#d4af37';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#ffd966';
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        function updateWheel() {
+            drawWheel();
+            updateChanceDisplay();
+        }
+
+        function spin() {
+            if (spinning) return;
+            spinning = true;
+            spinBtn.disabled = true;
+
+            const randomPercent = Math.random() * 100;
+            let cumulative = 0;
+            let winningIndex = 0;
+            for (let i = 0; i < numSectors; i++) {
+                cumulative += chances[i];
+                if (randomPercent < cumulative) {
+                    winningIndex = i;
+                    break;
+                }
+            }
+            if (winningIndex >= numSectors) winningIndex = numSectors - 1;
+
+            const extraTurns = 5 + Math.floor(Math.random() * 5);
+            const sectorJitter = (Math.random() * 0.6 - 0.3) * anglePerSector;
+            const targetRotation = -winningIndex * anglePerSector + extraTurns * 2 * Math.PI + sectorJitter;
+
+            const duration = 4000;
+            const startRotation = currentRotation;
+            let rotationDelta = targetRotation - startRotation;
+            while (rotationDelta < 0) rotationDelta += 2 * Math.PI;
+            const endRotation = startRotation + rotationDelta;
+
+            const startTime = performance.now();
+
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                currentRotation = startRotation + rotationDelta * eased;
+                updateWheel();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    currentRotation = endRotation;
+                    updateWheel();
+
+                    const finalIndex = getSectorUnderArrow(currentRotation);
+
+                    if (sectorTypes[finalIndex] === 'prize') {
+                        const prize = prizePool[selectedPrizeIndex];
+                        imageContainer.innerHTML = `<img src="${prize.image}" alt="${prize.name}"
+                            onerror="this.onerror=null; this.innerHTML='<span class=\\'nothing-text\\'>КАРТИНКА НЕ ЗАГРУЗИЛАСЬ</span>';">`;
+                    } else {
+                        imageContainer.innerHTML = `<span class="nothing-text">— НИЧЕГО —</span>`;
+                    }
+
+                    spinning = false;
+                    spinBtn.disabled = false;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function init() {
+            renderPrizeSelector();
+            currentRotation = 0;
+            updateWheel();
+            spinBtn.addEventListener('click', spin);
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
