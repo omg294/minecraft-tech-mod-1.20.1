@@ -3,31 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Рулетка • Приз или ничего</title>
+    <title>Мини-игры • Призы</title>
     <style>
-        * {
-            box-sizing: border-box;
-            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-        }
+        * { box-sizing: border-box; font-family: system-ui, 'Segoe UI', Roboto, sans-serif; }
 
         body {
             margin: 0;
             min-height: 100vh;
             background: linear-gradient(145deg, #1a1e2b 0%, #2a2f3f 100%);
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            padding: 16px;
+            padding: 20px 16px;
         }
 
-        .roulette-container {
+        .app {
             background: rgba(22, 26, 35, 0.85);
             backdrop-filter: blur(4px);
-            border-radius: 48px;
-            padding: 32px 28px 40px;
+            border-radius: 32px;
+            padding: 24px 20px 28px;
             box-shadow: 0 25px 40px rgba(0, 0, 0, 0.7), inset 0 1px 3px rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 215, 0, 0.2);
-            max-width: 700px;
+            max-width: 720px;
             width: 100%;
         }
 
@@ -37,235 +34,396 @@
             font-weight: 400;
             letter-spacing: 2px;
             text-transform: uppercase;
-            font-size: 1.4rem;
-            margin-top: 0;
-            margin-bottom: 24px;
+            font-size: 1.3rem;
+            margin: 0 0 18px;
             text-shadow: 0 2px 10px rgba(255, 200, 50, 0.5);
         }
 
-        .wheel-wrapper {
-            position: relative;
-            width: 380px;
-            height: 380px;
-            margin: 0 auto 16px;
-        }
-
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100% !important;
-            height: 100% !important;
-            display: block;
-            border-radius: 50%;
-            box-shadow: 0 0 0 8px #0f111a, 0 0 0 12px #2e3547, 0 15px 30px black;
-        }
-
-        .arrow-pointer {
-            position: absolute;
-            top: -22px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 28px solid transparent;
-            border-right: 28px solid transparent;
-            border-top: 48px solid #f3c623;
-            filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.8));
-            z-index: 20;
-            pointer-events: none;
-        }
-
-        .arrow-pointer::after {
-            content: '';
-            position: absolute;
-            top: -56px;
-            left: -10px;
-            width: 20px;
-            height: 20px;
-            background: #f3c623;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #ffd966;
-        }
-
-        .chance-under {
-            text-align: center;
-            color: #d4c09e;
-            font-size: 0.95rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+        .tabs {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
             margin-bottom: 20px;
-            background: rgba(12, 14, 20, 0.6);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 14px;
             border-radius: 30px;
-            padding: 10px 18px;
-            display: inline-block;
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            border: 2px solid #3a4055;
+            background: #1a1e2b;
+            color: #b8c0d0;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s;
         }
 
-        .chance-under .chance-number {
-            color: #ffd966;
-            font-weight: 900;
-            font-size: 1.4rem;
-            margin-left: 6px;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        .tab-btn:hover { border-color: #ffd966; color: #ffd966; }
+        .tab-btn.active {
+            background: radial-gradient(circle at 30% 10%, #ffd966, #b8860b);
+            color: #19170e;
+            border-color: #ffe28c;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
         }
 
-        .chance-under-wrapper {
-            text-align: center;
-        }
+        .game-panel { display: none; }
+        .game-panel.active { display: block; }
 
-        .spin-btn {
+        .action-btn {
             display: block;
             width: 200px;
-            margin: 0 auto;
-            padding: 16px 24px;
+            margin: 16px auto 0;
+            padding: 14px 22px;
             background: radial-gradient(circle at 30% 10%, #ffd966, #b8860b);
             border: none;
             border-radius: 40px;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             font-weight: 700;
             letter-spacing: 2px;
             color: #19170e;
             text-transform: uppercase;
             cursor: pointer;
-            box-shadow: 0 12px 0 #6b4c0a, 0 10px 25px black;
+            box-shadow: 0 10px 0 #6b4c0a, 0 8px 20px black;
             transition: all 0.08s ease;
             border: 1px solid #ffe28c;
         }
+        .action-btn:active { transform: translateY(5px); box-shadow: 0 5px 0 #6b4c0a, 0 6px 14px black; }
+        .action-btn:disabled { opacity: 0.6; transform: translateY(5px); box-shadow: 0 5px 0 #6b4c0a; cursor: not-allowed; }
 
-        .spin-btn:active {
-            transform: translateY(6px);
-            box-shadow: 0 6px 0 #6b4c0a, 0 8px 20px black;
+        /* РУЛЕТКА */
+        .wheel-wrapper {
+            position: relative;
+            width: 340px; height: 340px;
+            margin: 0 auto 10px;
         }
-
-        .spin-btn:disabled {
-            opacity: 0.6;
-            transform: translateY(6px);
-            box-shadow: 0 6px 0 #6b4c0a, 0 8px 20px black;
-            cursor: not-allowed;
+        .wheel-wrapper canvas {
+            position: absolute; inset: 0;
+            width: 100% !important; height: 100% !important;
+            border-radius: 50%;
+            box-shadow: 0 0 0 8px #0f111a, 0 0 0 12px #2e3547, 0 15px 30px black;
         }
-
-        .result-card {
-            margin-top: 28px;
-            background: rgba(12, 14, 20, 0.8);
-            border-radius: 32px;
-            padding: 16px;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7);
+        .arrow-pointer {
+            position: absolute;
+            top: -20px; left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 24px solid transparent;
+            border-right: 24px solid transparent;
+            border-top: 42px solid #f3c623;
+            filter: drop-shadow(0 6px 6px rgba(0,0,0,0.8));
+            z-index: 20;
+        }
+        .arrow-pointer::after {
+            content: '';
+            position: absolute;
+            top: -50px; left: -9px;
+            width: 18px; height: 18px;
+            background: #f3c623;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffd966;
+        }
+        .chance-line {
             text-align: center;
-        }
-
-        .result-title {
-            color: #d4c09e;
-            font-size: 0.9rem;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-        }
-
-        .result-image-wrapper {
-            background: #0a0c10;
-            border-radius: 24px;
-            min-height: 140px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px;
-            border: 2px dashed #3e4357;
-        }
-
-        .result-image-wrapper img {
-            max-width: 100%;
-            max-height: 180px;
-            border-radius: 18px;
-            display: block;
-            box-shadow: 0 6px 14px black;
-        }
-
-        .placeholder-text {
-            color: #6b7280;
-            font-size: 1rem;
-            font-style: italic;
-        }
-
-        .nothing-text {
-            color: #8b8fa3;
-            font-size: 1.6rem;
-            font-weight: 700;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-        }
-
-        .prize-selector {
-            margin-top: 24px;
-            padding: 16px;
-            background: rgba(12, 14, 20, 0.6);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 215, 0, 0.15);
-        }
-
-        .prize-selector-title {
             color: #d4c09e;
             font-size: 0.85rem;
             letter-spacing: 2px;
             text-transform: uppercase;
-            text-align: center;
-            margin-bottom: 12px;
+            margin: 8px 0;
         }
+        .chance-line span { color: #ffd966; font-weight: 900; font-size: 1.2rem; margin-left: 6px; }
 
-        .prize-list {
+        /* СЛОТЫ */
+        .slots-row {
             display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
             justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
         }
-
-        .prize-item {
-            position: relative;
-            width: 90px;
-            height: 90px;
-            border-radius: 16px;
-            overflow: hidden;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: all 0.15s ease;
+        .slot-reel {
+            width: 90px; height: 110px;
             background: #0a0c10;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+            border-radius: 16px;
+            border: 3px solid #3a4055;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+            overflow: hidden;
         }
-
-        .prize-item:hover {
-            transform: translateY(-3px);
+        .slot-reel.spinning { animation: shake 0.1s infinite; }
+        @keyframes shake {
+            0% { transform: translateY(-4px); }
+            50% { transform: translateY(4px); }
+            100% { transform: translateY(-4px); }
+        }
+        .slot-reel.win {
             border-color: #ffd966;
+            box-shadow: 0 0 25px #ffd966, inset 0 0 20px rgba(0,0,0,0.9);
         }
 
-        .prize-item.selected {
-            border-color: #2a9d8f;
-            box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.4), 0 0 20px #2a9d8f;
-        }
-
-        .prize-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .prize-item .label {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            font-size: 0.65rem;
+        /* УГАДАЙ ЧИСЛО */
+        .guess-info {
             text-align: center;
-            padding: 3px 2px;
+            color: #d4c09e;
+            font-size: 0.95rem;
+            margin: 12px 0;
             letter-spacing: 1px;
+        }
+        .guess-input-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 16px 0;
+        }
+        .guess-input {
+            width: 140px;
+            padding: 12px 16px;
+            background: #0a0c10;
+            border: 2px solid #3a4055;
+            border-radius: 14px;
+            color: #ffd966;
+            font-size: 1.2rem;
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 2px;
+            outline: none;
+        }
+        .guess-input:focus { border-color: #ffd966; }
+        .guess-hint {
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 700;
+            min-height: 24px;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .hint-high { color: #e63946; }
+        .hint-low { color: #457b9d; }
+        .hint-win { color: #2a9d8f; }
+        .lives { text-align: center; color: #d4c09e; font-size: 0.9rem; letter-spacing: 1px; margin-bottom: 8px; }
+        .lives span { color: #ffd966; font-weight: 700; }
+
+        /* КАМЕНЬ-НОЖНИЦЫ-БУМАГА */
+        .rps-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .rps-hand {
+            width: 100px; height: 100px;
+            background: #0a0c10;
+            border-radius: 20px;
+            border: 3px solid #3a4055;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+            transition: all 0.2s;
+        }
+        .rps-hand.win {
+            border-color: #2a9d8f;
+            box-shadow: 0 0 25px #2a9d8f, inset 0 0 20px rgba(0,0,0,0.9);
+        }
+        .rps-hand.lose {
+            border-color: #e63946;
+            box-shadow: 0 0 25px #e63946, inset 0 0 20px rgba(0,0,0,0.9);
+        }
+        .rps-vs {
+            color: #ffd966;
+            font-size: 1.2rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+        .rps-choices {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .rps-choice {
+            padding: 12px 20px;
+            border-radius: 16px;
+            border: 2px solid #3a4055;
+            background: #1a1e2b;
+            color: #fff;
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .rps-choice:hover:not(:disabled) {
+            border-color: #ffd966;
+            transform: translateY(-3px);
+        }
+        .rps-choice:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* КОСТИ */
+        .dice-row {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .dice {
+            width: 90px; height: 90px;
+            background: linear-gradient(145deg, #fef9e7, #d4af37);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.7), inset 0 2px 6px rgba(255,255,255,0.5);
+            transition: all 0.15s;
+        }
+        .dice.rolling {
+            animation: diceRoll 0.15s infinite;
+        }
+        @keyframes diceRoll {
+            0% { transform: rotate(-8deg) scale(1.02); }
+            50% { transform: rotate(8deg) scale(0.98); }
+            100% { transform: rotate(-8deg) scale(1.02); }
+        }
+        .dice.win {
+            box-shadow: 0 0 30px #ffd966, 0 6px 14px rgba(0,0,0,0.7), inset 0 2px 6px rgba(255,255,255,0.5);
+        }
+        .dice-sum {
+            text-align: center;
+            color: #d4c09e;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            margin: 12px 0;
+        }
+        .dice-sum span { color: #ffd966; font-weight: 900; font-size: 1.3rem; }
+
+        /* КАРТЫ ВЫШЕ-НИЖЕ */
+        .cards-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .card {
+            width: 90px; height: 130px;
+            background: #fef9e7;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.7);
+            border: 2px solid #d4af37;
+            transition: all 0.2s;
+        }
+        .card.back {
+            background: repeating-linear-gradient(45deg, #2a2f3f, #2a2f3f 6px, #1a1e2b 6px, #1a1e2b 12px);
+            color: #ffd966;
+            font-size: 2rem;
+        }
+        .card .rank { font-size: 1.8rem; line-height: 1; }
+        .card .suit { font-size: 1.8rem; line-height: 1; }
+        .card.red { color: #e63946; }
+        .card.black { color: #1a1e2b; }
+        .card.win { box-shadow: 0 0 30px #2a9d8f, 0 6px 14px rgba(0,0,0,0.7); border-color: #2a9d8f; }
+        .card.lose { box-shadow: 0 0 30px #e63946, 0 6px 14px rgba(0,0,0,0.7); border-color: #e63946; }
+
+        .cards-info {
+            text-align: center;
+            color: #d4c09e;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            margin: 8px 0;
+        }
+        .cards-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 8px;
+        }
+        .cards-btn {
+            padding: 12px 24px;
+            border-radius: 20px;
+            border: 2px solid #ffd966;
+            background: #1a1e2b;
+            color: #ffd966;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .cards-btn:hover:not(:disabled) { background: #ffd966; color: #19170e; }
+        .cards-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* РЕЗУЛЬТАТ */
+        .result-card {
+            margin-top: 20px;
+            background: rgba(12, 14, 20, 0.8);
+            border-radius: 24px;
+            padding: 14px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            text-align: center;
+            min-height: 100px;
+        }
+        .result-card .result-title {
+            color: #d4c09e;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
             text-transform: uppercase;
         }
+        .result-card img {
+            max-width: 100%;
+            max-height: 160px;
+            border-radius: 16px;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 6px 14px black;
+        }
+        .placeholder-text {
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-style: italic;
+            padding: 20px 0;
+            display: block;
+        }
+        .win-text {
+            color: #2a9d8f;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            padding: 8px 0;
+        }
+        .lose-text {
+            color: #8b8fa3;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 12px 0;
+        }
+        .draw-text {
+            color: #ffd966;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 12px 0;
+        }
 
-        .note-links {
-            margin-top: 12px;
-            font-size: 0.75rem;
+        .note {
+            margin-top: 14px;
+            font-size: 0.72rem;
             color: #7d859e;
             text-align: center;
             background: #1b1f2b;
@@ -275,274 +433,608 @@
     </style>
 </head>
 <body>
-<div class="roulette-container">
-    <h1>🎰 Приз или ничего 🎰</h1>
+<div class="app">
+    <h1>🎮 Мини-игры 🎮</h1>
 
-    <div class="wheel-wrapper">
-        <canvas id="wheelCanvas" width="700" height="700"></canvas>
-        <div class="arrow-pointer"></div>
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="roulette">🎡 Рулетка</button>
+        <button class="tab-btn" data-tab="slots">🎰 Слоты</button>
+        <button class="tab-btn" data-tab="guess">🔢 Число</button>
+        <button class="tab-btn" data-tab="rps">✊ КНБ</button>
+        <button class="tab-btn" data-tab="dice">🎲 Кости</button>
+        <button class="tab-btn" data-tab="cards">🃏 Карты</button>
     </div>
 
-    <div class="chance-under-wrapper">
-        <div class="chance-under">
-            Шанс: <span class="chance-number" id="chanceDisplay">25%</span>
+    <!-- ============ 1. РУЛЕТКА ============ -->
+    <div class="game-panel active" id="panel-roulette">
+        <div class="wheel-wrapper">
+            <canvas id="wheelCanvas" width="680" height="680"></canvas>
+            <div class="arrow-pointer"></div>
+        </div>
+        <div class="chance-line">Шанс: <span id="chanceDisplay">25%</span></div>
+        <button class="action-btn" id="spinBtn">Крутить</button>
+        <div class="result-card" id="rouletteResult">
+            <div class="result-title">Результат</div>
+            <span class="placeholder-text">Крутите колесо</span>
         </div>
     </div>
 
-    <button class="spin-btn" id="spinButton">КРУТИТЬ</button>
-
-    <div class="result-card">
-        <div class="result-title">РЕЗУЛЬТАТ</div>
-        <div class="result-image-wrapper" id="imageContainer">
-            <span class="placeholder-text">Нажмите «Крутить»</span>
+    <!-- ============ 2. СЛОТЫ ============ -->
+    <div class="game-panel" id="panel-slots">
+        <div class="slots-row">
+            <div class="slot-reel" id="reel0">❓</div>
+            <div class="slot-reel" id="reel1">❓</div>
+            <div class="slot-reel" id="reel2">❓</div>
+        </div>
+        <button class="action-btn" id="slotsBtn">Крутить</button>
+        <div class="result-card" id="slotsResult">
+            <div class="result-title">Результат</div>
+            <span class="placeholder-text">Соберите 3 одинаковых</span>
         </div>
     </div>
 
-    <div class="prize-selector">
-        <div class="prize-selector-title">Выберите приз</div>
-        <div class="prize-list" id="prizeList"></div>
+    <!-- ============ 3. УГАДАЙ ЧИСЛО ============ -->
+    <div class="game-panel" id="panel-guess">
+        <div class="guess-info">Угадайте число от <b>1</b> до <b>10</b></div>
+        <div class="lives">Попыток осталось: <span id="livesLeft">3</span></div>
+        <div class="guess-input-row">
+            <input class="guess-input" id="guessInput" type="number" min="1" max="10" placeholder="?">
+        </div>
+        <div class="guess-hint" id="guessHint"></div>
+        <button class="action-btn" id="guessBtn">Проверить</button>
+        <div class="result-card" id="guessResult">
+            <div class="result-title">Результат</div>
+            <span class="placeholder-text">Введите число</span>
+        </div>
     </div>
 
-    <div class="note-links">
-        ✏️ Ссылки на картинки призов — в массиве <strong>prizePool</strong> (в скрипте)
+    <!-- ============ 4. КАМЕНЬ-НОЖНИЦЫ-БУМАГА ============ -->
+    <div class="game-panel" id="panel-rps">
+        <div class="rps-row">
+            <div class="rps-hand" id="rpsPlayer">❔</div>
+            <div class="rps-vs">VS</div>
+            <div class="rps-hand" id="rpsComputer">❔</div>
+        </div>
+        <div class="rps-choices">
+            <button class="rps-choice" data-choice="rock">✊</button>
+            <button class="rps-choice" data-choice="paper">✋</button>
+            <button class="rps-choice" data-choice="scissors">✌️</button>
+        </div>
+        <div class="result-card" id="rpsResult">
+            <div class="result-title">Результат</div>
+            <span class="placeholder-text">Выберите ход</span>
+        </div>
+    </div>
+
+    <!-- ============ 5. КОСТИ ============ -->
+    <div class="game-panel" id="panel-dice">
+        <div class="dice-row">
+            <div class="dice" id="dice0">⚀</div>
+            <div class="dice" id="dice1">⚀</div>
+        </div>
+        <div class="dice-sum">Сумма: <span id="diceSum">—</span></div>
+        <button class="action-btn" id="diceBtn">Бросить</button>
+        <div class="result-card" id="diceResult">
+            <div class="result-title">Результат</div>
+            <span class="placeholder-text">Выпадет 7 или 11 — выигрыш</span>
+        </div>
+    </div>
+
+    <!-- ============ 6. КАРТЫ ВЫШЕ-НИЖЕ ============ -->
+    <div class="game-panel" id="panel-cards">
+        <div class="cards-row">
+            <div class="card" id="cardCurrent"></div>
+            <div class="card back" id="cardNext">?</div>
+        </div>
+        <div class="cards-info">Угадайте: следующая карта выше или ниже?</div>
+        <div class="cards-buttons">
+            <button class="cards-btn" id="btnHigher">Выше ⬆️</button>
+            <button class="cards-btn" id="btnLower">Ниже ⬇️</button>
+        </div>
+        <div class="result-card" id="cardsResult">
+            <div class="result-title">Результат</div>
+            <span class="placeholder-text">Сделайте ставку</span>
+        </div>
+    </div>
+
+    <div class="note">
+        ✏️ Ссылки на картинки — в объекте <strong>prizeImages</strong> в начале скрипта
     </div>
 </div>
 
 <script>
-    (function() {
-        // ========== НАСТРОЙКИ ==========
-        // 🔻🔻🔻 ЗДЕСЬ ВСТАВЬТЕ СВОИ ССЫЛКИ НА КАРТИНКИ ПРИЗОВ 🔻🔻🔻
-        const prizePool = [
-            {
-                name: 'Приз 1',
-                image: 'https://wimg.rule34.xxx//samples/1249/sample_48c892157160c58b99434eaa72430555.jpg?18617477'  // <-- ваша blob-ссылка
-            },
-            {
-                name: 'Приз 2',
-                image: 'https://placehold.co/300x300/e76f51/ffffff?text=ПРИЗ+2'
-            },
-            {
-                name: 'Приз 3',
-                image: 'https://placehold.co/300x300/9c89b8/ffffff?text=ПРИЗ+3'
-            },
-            {
-                name: 'Приз 4',
-                image: 'https://placehold.co/300x300/457b9d/ffffff?text=ПРИЗ+4'
-            }
-        ];
+    (function () {
+        // ===================================================================
+        // 🔻🔻🔻 ЗДЕСЬ ВСТАВЬТЕ СВОИ КАРТИНКИ ДЛЯ КАЖДОЙ ИГРЫ 🔻🔻🔻
+        // ===================================================================
+        const prizeImages = {
+            ro',
+            slots:    'https://wimg.rule34.xxx//images/3980/5ad999c41509bcedafff6f1e452e59ee.jpeg?18283206',
+            guess:    'https://wimg.rule34.xxx//samples/3995/sample_e13019f3d7900a185e013784c4b90e41.jpg?18353539',
+            rps:      'https://wimg.rule34.xxx//samples/1249/sample_48c892157160c58b99434eaa72430555.jpg?18617477',
+            dice:     'https://wimg.rule34.xxx//samples/5582/sample_154fc01503f264040a40c9f95b0554b8.jpg?18490261',
+            cards:    'https://placehold.co/600x400/e9c46a/333333?text=ПРИЗ+КАРТЫ'
+        };
+        // ===================================================================
         // 🔺🔺🔺 КОНЕЦ НАСТРОЕК 🔺🔺🔺
+        // ===================================================================
 
-        const chances = [25, 25, 25, 25];
-        const sectorTypes = ['prize', 'empty', 'empty', 'empty'];
-
-        const colorPrize = '#2a9d8f';
-        const colorEmpty = '#3a4055';
-        const colorEmptyDark = '#2e3547';
-
-        let selectedPrizeIndex = 0;
-        let currentRotation = 0;
-        let spinning = false;
-
-        const canvas = document.getElementById('wheelCanvas');
-        const ctx = canvas.getContext('2d');
-        const spinBtn = document.getElementById('spinButton');
-        const imageContainer = document.getElementById('imageContainer');
-        const chanceDisplay = document.getElementById('chanceDisplay');
-        const prizeList = document.getElementById('prizeList');
-
-        const numSectors = 4;
-        const anglePerSector = (Math.PI * 2) / numSectors;
-
-        function renderPrizeSelector() {
-            prizeList.innerHTML = '';
-            prizePool.forEach((prize, idx) => {
-                const item = document.createElement('div');
-                item.className = 'prize-item' + (idx === selectedPrizeIndex ? ' selected' : '');
-                item.innerHTML = `
-                    <img src="${prize.image}" alt="${prize.name}"
-                         onerror="this.onerror=null; this.src='https://placehold.co/300x300/1a1e2b/ffd966?text=НЕТ+ФОТО';">
-                    <div class="label">${prize.name}</div>
-                `;
-                item.addEventListener('click', () => {
-                    if (spinning) return;
-                    selectedPrizeIndex = idx;
-                    renderPrizeSelector();
-                    updateWheel();
-                });
-                prizeList.appendChild(item);
+        // ---------- ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ----------
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+                // Перезапуск игр при переходе
+                if (btn.dataset.tab === 'guess') window.__resetGuess && window.__resetGuess();
+                if (btn.dataset.tab === 'cards') window.__resetCards && window.__resetCards();
             });
+        });
+
+        function showPrize(container, gameKey) {
+            container.innerHTML = `
+                <div class="result-title">🎉 ВЫИГРЫШ! 🎉</div>
+                <img src="${prizeImages[gameKey]}" alt="Приз"
+                     onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'win-text\\'>🎉 ВЫИГРЫШ! (картинка не загрузилась)</div>';">
+            `;
+        }
+        function showLose(container, message) {
+            container.innerHTML = `<div class="result-title">Результат</div><div class="lose-text">${message}</div>`;
+        }
+        function showDraw(container, message) {
+            container.innerHTML = `<div class="result-title">Результат</div><div class="draw-text">${message}</div>`;
         }
 
-        function getSectorUnderArrow(rotation) {
-            const delta = (-rotation + anglePerSector / 2);
-            const normalized = ((delta % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-            return Math.floor(normalized / anglePerSector) % numSectors;
-        }
+        // ===================================================================
+        // ================= 1. РУЛЕТКА =====================================
+        // ===================================================================
+        (function initRoulette() {
+            const canvas = document.getElementById('wheelCanvas');
+            const ctx = canvas.getContext('2d');
+            const spinBtn = document.getElementById('spinBtn');
+            const chanceDisplay = document.getElementById('chanceDisplay');
+            const resultBox = document.getElementById('rouletteResult');
 
-        function updateChanceDisplay() {
-            const idx = getSectorUnderArrow(currentRotation);
-            chanceDisplay.textContent = chances[idx] + '%';
-        }
+            const chances = [25, 25, 25, 25];
+            const sectorTypes = ['prize', 'empty', 'empty', 'empty'];
+            const colors = { prize: '#2a9d8f', empty: '#3a4055', emptyDark: '#2e3547' };
+            const numSectors = 4;
+            const anglePerSector = (Math.PI * 2) / numSectors;
 
-        function drawWheel() {
-            const width = canvas.width;
-            const height = canvas.height;
-            const centerX = width / 2;
-            const centerY = height / 2;
-            const radius = Math.min(width, height) / 2 - 20;
+            let currentRotation = 0;
+            let spinning = false;
 
-            ctx.clearRect(0, 0, width, height);
+            function getSector(rot) {
+                const delta = -rot + anglePerSector / 2;
+                const norm = ((delta % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+                return Math.floor(norm / anglePerSector) % numSectors;
+            }
 
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            ctx.fillStyle = colorEmpty;
-            ctx.fill();
+            function updateChance() {
+                chanceDisplay.textContent = chances[getSector(currentRotation)] + '%';
+            }
 
-            for (let i = 0; i < numSectors; i++) {
-                const startAngle = i * anglePerSector - Math.PI / 2 - anglePerSector / 2 + currentRotation;
-                const endAngle = startAngle + anglePerSector;
+            function draw() {
+                const w = canvas.width, h = canvas.height;
+                const cx = w / 2, cy = h / 2;
+                const r = Math.min(w, h) / 2 - 20;
 
-                const type = sectorTypes[i];
+                ctx.clearRect(0, 0, w, h);
+                ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                ctx.fillStyle = colors.empty; ctx.fill();
 
-                if (type === 'prize') {
+                for (let i = 0; i < numSectors; i++) {
+                    const start = i * anglePerSector - Math.PI / 2 - anglePerSector / 2 + currentRotation;
+                    const end = start + anglePerSector;
                     ctx.beginPath();
-                    ctx.moveTo(centerX, centerY);
-                    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                    ctx.moveTo(cx, cy);
+                    ctx.arc(cx, cy, r, start, end);
                     ctx.closePath();
-                    ctx.fillStyle = colorPrize;
+                    ctx.fillStyle = sectorTypes[i] === 'prize'
+                        ? colors.prize
+                        : (i % 2 === 0 ? colors.empty : colors.emptyDark);
                     ctx.fill();
-                } else {
                     ctx.beginPath();
-                    ctx.moveTo(centerX, centerY);
-                    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-                    ctx.closePath();
-                    ctx.fillStyle = (i % 2 === 0) ? colorEmpty : colorEmptyDark;
-                    ctx.fill();
+                    ctx.moveTo(cx, cy);
+                    ctx.lineTo(cx + Math.cos(start) * r, cy + Math.sin(start) * r);
+                    ctx.strokeStyle = 'rgba(15,17,26,0.6)';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
                 }
 
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.lineTo(
-                    centerX + Math.cos(startAngle) * radius,
-                    centerY + Math.sin(startAngle) * radius
-                );
-                ctx.strokeStyle = 'rgba(15, 17, 26, 0.6)';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-            }
-
-            for (let i = 0; i < numSectors; i++) {
-                if (sectorTypes[i] !== 'prize') continue;
-                const startAngle = i * anglePerSector - Math.PI / 2 - anglePerSector / 2 + currentRotation;
-                const endAngle = startAngle + anglePerSector;
-
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-                ctx.closePath();
-                ctx.strokeStyle = '#ffd966';
-                ctx.lineWidth = 8;
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = '#ffd966';
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-            }
-
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            ctx.strokeStyle = '#0f111a';
-            ctx.lineWidth = 8;
-            ctx.stroke();
-
-            ctx.save();
-            ctx.translate(centerX, centerY);
-            for (let i = 0; i < 36; i++) {
-                const angle = (i / 36) * Math.PI * 2;
-                const x = Math.cos(angle) * (radius - 6);
-                const y = Math.sin(angle) * (radius - 6);
-                ctx.beginPath();
-                ctx.arc(x, y, 5, 0, Math.PI * 2);
-                ctx.fillStyle = '#d4af37';
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = '#ffd966';
-                ctx.fill();
-            }
-            ctx.restore();
-        }
-
-        function updateWheel() {
-            drawWheel();
-            updateChanceDisplay();
-        }
-
-        function spin() {
-            if (spinning) return;
-            spinning = true;
-            spinBtn.disabled = true;
-
-            const randomPercent = Math.random() * 100;
-            let cumulative = 0;
-            let winningIndex = 0;
-            for (let i = 0; i < numSectors; i++) {
-                cumulative += chances[i];
-                if (randomPercent < cumulative) {
-                    winningIndex = i;
-                    break;
+                for (let i = 0; i < numSectors; i++) {
+                    if (sectorTypes[i] !== 'prize') continue;
+                    const start = i * anglePerSector - Math.PI / 2 - anglePerSector / 2 + currentRotation;
+                    const end = start + anglePerSector;
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy);
+                    ctx.arc(cx, cy, r, start, end);
+                    ctx.closePath();
+                    ctx.strokeStyle = '#ffd966';
+                    ctx.lineWidth = 8;
+                    ctx.shadowBlur = 20; ctx.shadowColor = '#ffd966';
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
                 }
+
+                ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                ctx.strokeStyle = '#0f111a'; ctx.lineWidth = 8; ctx.stroke();
+
+                ctx.save(); ctx.translate(cx, cy);
+                for (let i = 0; i < 36; i++) {
+                    const a = (i / 36) * Math.PI * 2;
+                    ctx.beginPath();
+                    ctx.arc(Math.cos(a) * (r - 6), Math.sin(a) * (r - 6), 5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#d4af37';
+                    ctx.shadowBlur = 10; ctx.shadowColor = '#ffd966';
+                    ctx.fill();
+                }
+                ctx.restore();
             }
-            if (winningIndex >= numSectors) winningIndex = numSectors - 1;
 
-            const extraTurns = 5 + Math.floor(Math.random() * 5);
-            const sectorJitter = (Math.random() * 0.6 - 0.3) * anglePerSector;
-            const targetRotation = -winningIndex * anglePerSector + extraTurns * 2 * Math.PI + sectorJitter;
+            function update() { draw(); updateChance(); }
 
-            const duration = 4000;
-            const startRotation = currentRotation;
-            let rotationDelta = targetRotation - startRotation;
-            while (rotationDelta < 0) rotationDelta += 2 * Math.PI;
-            const endRotation = startRotation + rotationDelta;
+            spinBtn.addEventListener('click', () => {
+                if (spinning) return;
+                spinning = true; spinBtn.disabled = true;
 
-            const startTime = performance.now();
+                const rnd = Math.random() * 100;
+                let cum = 0, winIdx = 0;
+                for (let i = 0; i < numSectors; i++) {
+                    cum += chances[i];
+                    if (rnd < cum) { winIdx = i; break; }
+                }
+                if (winIdx >= numSectors) winIdx = numSectors - 1;
 
-            function animate(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const eased = 1 - Math.pow(1 - progress, 3);
-                currentRotation = startRotation + rotationDelta * eased;
-                updateWheel();
+                const extraTurns = 5 + Math.floor(Math.random() * 5);
+                const jitter = (Math.random() * 0.6 - 0.3) * anglePerSector;
+                const target = -winIdx * anglePerSector + extraTurns * 2 * Math.PI + jitter;
 
-                if (progress < 1) {
-                    requestAnimationFrame(animate);
-                } else {
-                    currentRotation = endRotation;
-                    updateWheel();
+                const duration = 4000;
+                const startRot = currentRotation;
+                let delta = target - startRot;
+                while (delta < 0) delta += 2 * Math.PI;
+                const endRot = startRot + delta;
+                const startTime = performance.now();
 
-                    const finalIndex = getSectorUnderArrow(currentRotation);
-
-                    if (sectorTypes[finalIndex] === 'prize') {
-                        const prize = prizePool[selectedPrizeIndex];
-                        imageContainer.innerHTML = `<img src="${prize.image}" alt="${prize.name}"
-                            onerror="this.onerror=null; this.innerHTML='<span class=\\'nothing-text\\'>КАРТИНКА НЕ ЗАГРУЗИЛАСЬ</span>';">`;
-                    } else {
-                        imageContainer.innerHTML = `<span class="nothing-text">— НИЧЕГО —</span>`;
+                function anim(t) {
+                    const p = Math.min((t - startTime) / duration, 1);
+                    const eased = 1 - Math.pow(1 - p, 3);
+                    currentRotation = startRot + delta * eased;
+                    update();
+                    if (p < 1) requestAnimationFrame(anim);
+                    else {
+                        currentRotation = endRot;
+                        update();
+                        const finalIdx = getSector(currentRotation);
+                        if (sectorTypes[finalIdx] === 'prize') showPrize(resultBox, 'roulette');
+                        else showLose(resultBox, '— НИЧЕГО —');
+                        spinning = false; spinBtn.disabled = false;
                     }
-
-                    spinning = false;
-                    spinBtn.disabled = false;
                 }
+                requestAnimationFrame(anim);
+            });
+
+            currentRotation = 0;
+            update();
+        })();
+
+        // ===================================================================
+        // ================= 2. СЛОТЫ =======================================
+        // ===================================================================
+        (function initSlots() {
+            const btn = document.getElementById('slotsBtn');
+            const reels = [
+                document.getElementById('reel0'),
+                document.getElementById('reel1'),
+                document.getElementById('reel2')
+            ];
+            const resultBox = document.getElementById('slotsResult');
+            const symbols = ['🍒', '🍋', '⭐', '💎', '🔔', '🍀'];
+            let spinning = false;
+
+            btn.addEventListener('click', () => {
+                if (spinning) return;
+                spinning = true; btn.disabled = true;
+                resultBox.innerHTML = `<div class="result-title">Результат</div><span class="placeholder-text">Крутим...</span>`;
+                reels.forEach(r => r.classList.add('spinning'));
+
+                const finals = [0,1,2].map(() => symbols[Math.floor(Math.random() * symbols.length)]);
+                const startTime = performance.now();
+                const duration = 1800 + Math.random() * 800;
+
+                function anim(t) {
+                    const p = Math.min((t - startTime) / duration, 1);
+                    reels.forEach((r, i) => {
+                        const stopAt = 0.5 + i * 0.2;
+                        if (p < stopAt) r.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                        else if (r.textContent !== finals[i]) {
+                            r.textContent = finals[i];
+                            r.classList.remove('spinning');
+                        }
+                    });
+                    if (p < 1) requestAnimationFrame(anim);
+                    else {
+                        reels.forEach((r, i) => {
+                            r.textContent = finals[i];
+                            r.classList.remove('spinning');
+                        });
+                        const win = finals[0] === finals[1] && finals[1] === finals[2];
+                        if (win) {
+                            reels.forEach(r => r.classList.add('win'));
+                            showPrize(resultBox, 'slots');
+                        } else {
+                            reels.forEach(r => r.classList.remove('win'));
+                            showLose(resultBox, '— НЕ ПОВЕЗЛО —');
+                        }
+                        spinning = false; btn.disabled = false;
+                    }
+                }
+                requestAnimationFrame(anim);
+            });
+        })();
+
+        // ===================================================================
+        // ================= 3. УГАДАЙ ЧИСЛО =================================
+        // ===================================================================
+        (function initGuess() {
+            const input = document.getElementById('guessInput');
+            const btn = document.getElementById('guessBtn');
+            const hintBox = document.getElementById('guessHint');
+            const livesBox = document.getElementById('livesLeft');
+            const resultBox = document.getElementById('guessResult');
+
+            let secret = 0, lives = 3, finished = false;
+
+            function reset() {
+                secret = Math.floor(Math.random() * 10) + 1;
+                lives = 3; finished = false;
+                input.value = ''; input.disabled = false; btn.disabled = false;
+                hintBox.textContent = ''; hintBox.className = 'guess-hint';
+                livesBox.textContent = lives;
+                resultBox.innerHTML = `<div class="result-title">Результат</div><span class="placeholder-text">Введите число</span>`;
             }
 
-            requestAnimationFrame(animate);
-        }
+            function check() {
+                if (finished) return;
+                const v = parseInt(input.value, 10);
+                if (isNaN(v) || v < 1 || v > 10) {
+                    hintBox.textContent = 'Введите число от 1 до 10';
+                    hintBox.className = 'guess-hint hint-high';
+                    return;
+                }
+                if (v === secret) {
+                    hintBox.textContent = '🎉 Правильно!';
+                    hintBox.className = 'guess-hint hint-win';
+                    showPrize(resultBox, 'guess');
+                    finished = true; input.disabled = true; btn.disabled = true;
+                } else {
+                    lives--;
+                    livesBox.textContent = lives > 0 ? lives : 0;
+                    if (lives <= 0) {
+                        hintBox.textContent = `❌ Не угадали! Было число ${secret}.`;
+                        hintBox.className = 'guess-hint hint-high';
+                        showLose(resultBox, '— НЕ УГАДАЛИ —');
+                        finished = true; input.disabled = true; btn.disabled = true;
+                    } else {
+                        if (v < secret) {
+                            hintBox.textContent = `⬆️ Больше, чем ${v}`;
+                            hintBox.className = 'guess-hint hint-low';
+                        } else {
+                            hintBox.textContent = `⬇️ Меньше, чем ${v}`;
+                            hintBox.className = 'guess-hint hint-high';
+                        }
+                    }
+                }
+                input.value = '';
+                input.focus();
+            }
 
-        function init() {
-            renderPrizeSelector();
-            currentRotation = 0;
-            updateWheel();
-            spinBtn.addEventListener('click', spin);
-        }
+            btn.addEventListener('click', check);
+            input.addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
+            window.__resetGuess = reset;
+            reset();
+        })();
 
-        init();
+        // ===================================================================
+        // ================= 4. КАМЕНЬ-НОЖНИЦЫ-БУМАГА ========================
+        // ===================================================================
+        (function initRPS() {
+            const playerBox = document.getElementById('rpsPlayer');
+            const computerBox = document.getElementById('rpsComputer');
+            const resultBox = document.getElementById('rpsResult');
+            const buttons = document.querySelectorAll('.rps-choice');
+
+            const icons = { rock: '✊', paper: '✋', scissors: '✌️' };
+            const names = { rock: 'Камень', paper: 'Бумага', scissors: 'Ножницы' };
+            let busy = false;
+
+            function beats(a, b) {
+                return (a === 'rock' && b === 'scissors') ||
+                       (a === 'paper' && b === 'rock') ||
+                       (a === 'scissors' && b === 'paper');
+            }
+
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (busy) return;
+                    busy = true;
+                    buttons.forEach(b => b.disabled = true);
+
+                    const player = btn.dataset.choice;
+                    const computer = ['rock', 'paper', 'scissors'][Math.floor(Math.random() * 3)];
+
+                    // Анимация выбора
+                    playerBox.textContent = '❔';
+                    computerBox.textContent = '❔';
+                    playerBox.className = 'rps-hand';
+                    computerBox.className = 'rps-hand';
+
+                    setTimeout(() => {
+                        playerBox.textContent = icons[player];
+                        computerBox.textContent = icons[computer];
+
+                        if (player === computer) {
+                            showDraw(resultBox, `🤝 НИЧЬЯ (${names[player]})`);
+                        } else if (beats(player, computer)) {
+                            playerBox.classList.add('win');
+                            computerBox.classList.add('lose');
+                            showPrize(resultBox, 'rps');
+                        } else {
+                            playerBox.classList.add('lose');
+                            computerBox.classList.add('win');
+                            showLose(resultBox, `— ПРОИГРЫШ (${names[computer]} бьёт ${names[player]}) —`);
+                        }
+
+                        busy = false;
+                        buttons.forEach(b => b.disabled = false);
+                    }, 500);
+                });
+            });
+        })();
+
+        // ===================================================================
+        // ================= 5. КОСТИ =======================================
+        // ===================================================================
+        (function initDice() {
+            const btn = document.getElementById('diceBtn');
+            const d0 = document.getElementById('dice0');
+            const d1 = document.getElementById('dice1');
+            const sumEl = document.getElementById('diceSum');
+            const resultBox = document.getElementById('diceResult');
+
+            const faces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+            // Выигрышные суммы: 7 или 11
+            const winSums = [7, 11];
+            let busy = false;
+
+            btn.addEventListener('click', () => {
+                if (busy) return;
+                busy = true; btn.disabled = true;
+                resultBox.innerHTML = `<div class="result-title">Результат</div><span class="placeholder-text">Бросаем...</span>`;
+
+                d0.classList.add('rolling');
+                d1.classList.add('rolling');
+                d0.classList.remove('win');
+                d1.classList.remove('win');
+
+                const v1 = Math.floor(Math.random() * 6) + 1;
+                const v2 = Math.floor(Math.random() * 6) + 1;
+
+                let frames = 0;
+                const interval = setInterval(() => {
+                    d0.textContent = faces[Math.floor(Math.random() * 6)];
+                    d1.textContent = faces[Math.floor(Math.random() * 6)];
+                    frames++;
+                    if (frames > 15) {
+                        clearInterval(interval);
+                        d0.textContent = faces[v1 - 1];
+                        d1.textContent = faces[v2 - 1];
+                        d0.classList.remove('rolling');
+                        d1.classList.remove('rolling');
+
+                        const sum = v1 + v2;
+                        sumEl.textContent = sum;
+
+                        if (winSums.includes(sum)) {
+                            d0.classList.add('win');
+                            d1.classList.add('win');
+                            showPrize(resultBox, 'dice');
+                        } else {
+                            showLose(resultBox, `— СУММА ${sum}, НЕ ПОВЕЗЛО —`);
+                        }
+
+                        busy = false; btn.disabled = false;
+                    }
+                }, 70);
+            });
+        })();
+
+        // ===================================================================
+        // ================= 6. КАРТЫ ВЫШЕ-НИЖЕ ==============================
+        // ===================================================================
+        (function initCards() {
+            const currentCard = document.getElementById('cardCurrent');
+            const nextCard = document.getElementById('cardNext');
+            const btnHigher = document.getElementById('btnHigher');
+            const btnLower = document.getElementById('btnLower');
+            const resultBox = document.getElementById('cardsResult');
+
+            const ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+            const suits = ['♠','♥','♦','♣'];
+            const values = { '2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14 };
+
+            let currentCardData = null;
+            let busy = false;
+
+            function randomCard() {
+                const rank = ranks[Math.floor(Math.random() * ranks.length)];
+                const suit = suits[Math.floor(Math.random() * suits.length)];
+                const isRed = suit === '♥' || suit === '♦';
+                return { rank, suit, isRed, value: values[rank] };
+            }
+
+            function renderCard(el, card, hidden = false) {
+                if (hidden) {
+                    el.className = 'card back';
+                    el.innerHTML = '?';
+                    return;
+                }
+                el.className = 'card ' + (card.isRed ? 'red' : 'black');
+                el.innerHTML = `<div class="rank">${card.rank}</div><div class="suit">${card.suit}</div>`;
+            }
+
+            function reset() {
+                currentCardData = randomCard();
+                renderCard(currentCard, currentCardData);
+                nextCard.className = 'card back';
+                nextCard.innerHTML = '?';
+                btnHigher.disabled = false;
+                btnLower.disabled = false;
+                busy = false;
+                resultBox.innerHTML = `<div class="result-title">Результат</div><span class="placeholder-text">Сделайте ставку</span>`;
+            }
+
+            function play(guessHigher) {
+                if (busy || !currentCardData) return;
+                busy = true;
+                btnHigher.disabled = true;
+                btnLower.disabled = true;
+
+                let next = randomCard();
+                // Защита: если карта равна текущей — перебрасываем (чтобы не было ничьей)
+                while (next.value === currentCardData.value) {
+                    next = randomCard();
+                }
+
+                renderCard(nextCard, next);
+
+                const higher = next.value > currentCardData.value;
+                const correct = (guessHigher && higher) || (!guessHigher && !higher);
+
+                if (correct) {
+                    nextCard.classList.add('win');
+                    showPrize(resultBox, 'cards');
+                } else {
+                    nextCard.classList.add('lose');
+                    showLose(resultBox, '— НЕ УГАДАЛИ —');
+                }
+
+                // Через 2 сек — новая раздача
+                setTimeout(() => {
+                    if (document.getElementById('panel-cards').classList.contains('active')) {
+                        reset();
+                    }
+                }, 2000);
+            }
+
+            btnHigher.addEventListener('click', () => play(true));
+            btnLower.addEventListener('click', () => play(false));
+
+            window.__resetCards = reset;
+            reset();
+        })();
     })();
 </script>
 </body>
