@@ -1,0 +1,47 @@
+# Gradle
+.gradle/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.launch
+.classpath
+.project
+.settings/
+
+# Eclipse
+bin/
+.metadata/
+tmp/
+*.tmp
+*.bak
+
+# macOS
+.DS_Store
+
+# Minecraft
+run/
+.minecraft/
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+logs/
+
+# Node (if used)
+node_modules/
+npm-debug.log*
+
+# Others
+*.jar
+!gradle-wrapper.jar
+*.class
+.idea/
+out/
